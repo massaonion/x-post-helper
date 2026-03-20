@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X Post Formatter — @nbsw40</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display&display=swap');
+
+:root {
+  --bg: #fdf8f3;
+  --surface: #ffffff;
+  --surface2: #fef3e8;
+  --border: #e8ddd0;
+  --accent: #d9622b;
+  --accent2: #e8944a;
+  --accent-soft: #fff0e6;
+  --green: #2d8a5e;
+  --green-soft: #e8f5ef;
+  --text: #2c2420;
+  --text-mid: #6b5a52;
+  --text-muted: #a89990;
+  --shadow: 0 2px 20px rgba(180,120,80,0.10);
+  --shadow-lg: 0 8px 40px rgba(180,120,80,0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 5% 0%, rgba(217,98,43,0.08) 0%, transparent 40%),
+    radial-gradient(ellipse at 95% 100%, rgba(232,148,74,0.08) 0%, transparent 40%);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 16px 100px;
+}
+
+/* ヘッダー */
+header {
+  text-align: center;
+  margin-bottom: 40px;
+  animation: fadeDown .5s ease;
+}
+header h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.8rem;
+  color: var(--accent);
+  letter-spacing: .01em;
+}
+header p {
+  font-size: .82rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  font-weight: 300;
+}
+
+/* ステッパー */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 32px;
+  animation: fadeDown .5s .1s both;
+}
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.step-circle {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .78rem; font-weight: 700;
+  background: #e8ddd0;
+  color: var(--text-muted);
+  border: 2px solid transparent;
+  transition: all .3s;
+}
+.step-circle.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(217,98,43,.15);
+}
+.step-circle.done {
+  background: var(--green);
+  color: #fff;
+}
+.step-label {
+  font-size: .65rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.step-label.active { color: var(--accent); font-weight: 600; }
+.step-label.done   { color: var(--green); }
+.step-line {
+  width: 36px; height: 2px;
+  background: #e8ddd0;
+  margin-bottom: 18px;
+  transition: background .3s;
+}
+.step-line.done { background: var(--green); }
+
+/* カード */
+.card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  width: 100%; max-width: 680px;
+  box-shadow: var(--shadow);
+  animation: fadeUp .45s ease both;
+}
+
+.section-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: .72rem; font-weight: 700;
+  letter-spacing: .08em;
+  padding: 4px 12px; border-radius: 99px;
+  margin-bottom: 16px;
+}
+
+h2 {
+  font-size: 1.1rem; font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.sub {
+  font-size: .83rem; color: var(--text-muted);
+  margin-bottom: 18px; line-height: 1.7;
+}
+
+textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: .95rem; line-height: 1.85;
+  padding: 16px; resize: vertical; min-height: 120px;
+  outline: none; transition: border-color .2s;
+  font-weight: 300;
+}
+textarea:focus { border-color: var(--accent2); }
+textarea::placeholder { color: var(--text-muted); }
+
+/* ボタン群 */
+.btn-primary {
+  width: 100%; padding: 16px;
+  border-radius: 12px; border: none;
+  background: var(--accent);
+  color: #fff;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: .95rem; font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 4px 16px rgba(217,98,43,.3);
+  margin-top: 16px;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(217,98,43,.35); }
+.btn-primary:active { transform: none; }
+.btn-primary:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+.btn-secondary {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-mid);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: .85rem; font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-secondary:hover { border-color: var(--accent2); color: var(--accent); }
+
+.btn-green {
+  width: 100%; padding: 16px;
+  border-radius: 12px; border: none;
+  background: var(--green);
+  color: #fff;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: .95rem; font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 4px 16px rgba(45,138,94,.25);
+  margin-top: 12px;
+}
+.btn-green:hover { transform: translateY(-2px); }
+
+/* ジェミスカード */
+.gemis-card {
+  background: linear-gradient(135deg, #fff8f0, #fef3e8);
+  border: 1.5px solid #f0d4b8;
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 20px;
+  position: relative;
+}
+.gemis-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; font-weight: 700; color: #fff;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 10px rgba(217,98,43,.25);
+}
+.gemis-text {
+  font-size: .9rem; line-height: 1.85; color: var(--text);
+  white-space: pre-wrap;
+}
+.gemis-text strong { color: var(--accent); }
+
+/* パターン選択 */
+.pattern-list { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+.pattern-btn {
+  width: 100%; text-align: left;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: .88rem; color: var(--text);
+  cursor: pointer; transition: all .2s;
+  line-height: 1.6;
+}
+.pattern-btn:hover {
+  border-color: var(--accent2);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.pattern-btn .pat-label {
+  font-size: .72rem; font-weight: 700;
+  color: var(--accent); margin-bottom: 4px;
+  display: block;
+}
+
+/* オプションチップ */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 99px;
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  font-size: .82rem; color: var(--text-muted);
+  cursor: pointer; transition: all .2s; user-select: none;
+}
+.chip input { display: none; }
+.chip:hover { border-color: var(--accent2); color: var(--text); }
+.chip.sel {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent); font-weight: 600;
+}
+.chip .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--border); transition: background .2s;
+}
+.chip.sel .dot { background: var(--accent); }
+
+.opts-label { font-size: .8rem; color: var(--text-muted); margin: 14px 0 8px; font-weight: 500; }
+
+/* ハッシュタグ */
+.tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.tag-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 99px;
+  background: var(--green-soft);
+  border: 1.5px solid #b8deca;
+  color: var(--green); font-size: .85rem; font-weight: 500;
+}
+.tag-del {
+  cursor: pointer; color: #8ab8a0;
+  font-size: .8rem; line-height: 1;
+  transition: color .2s;
+}
+.tag-del:hover { color: var(--accent); }
+
+.tag-add-row {
+  display: flex; gap: 8px; margin-top: 8px;
+}
+.tag-input {
+  flex: 1; padding: 8px 14px;
+  border-radius: 10px; border: 1.5px solid var(--border);
+  background: var(--surface2);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: .85rem; color: var(--text); outline: none;
+}
+.tag-input:focus { border-color: var(--green); }
+.tag-add-btn {
+  padding: 8px 16px; border-radius: 10px;
+  border: 1.5px solid #b8deca;
+  background: var(--green-soft); color: var(--green);
+  font-size: .85rem; cursor: pointer; transition: all .2s;
+}
+.tag-add-btn:hover { background: var(--green); color: #fff; }
+
+/* 結果ボックス */
+.result-box {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 18px; font-size: .93rem;
+  line-height: 1.85; white-space: pre-wrap;
+  word-break: break-all; margin: 12px 0;
+  color: var(--text);
+}
+.result-box .tag { color: var(--green); font-weight: 500; }
+
+.char-badge {
+  display: inline-block;
+  padding: 3px 10px; border-radius: 99px;
+  font-size: .75rem; font-weight: 600;
+}
+.char-badge.ok  { background: var(--green-soft); color: var(--green); }
+.char-badge.warn{ background: #fff8e0; color: #b07d00; }
+.char-badge.over{ background: #fde8e8; color: #c0392b; }
+
+.row { display: flex; gap: 10px; margin-top: 12px; }
+.row .btn-secondary { flex: 1; text-align: center; }
+
+/* ローディング */
+.loading {
+  display: flex; align-items: center; gap: 12px;
+  padding: 20px; color: var(--text-muted); font-size: .88rem;
+}
+.spinner {
+  width: 20px; height: 20px;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+/* 完了メッセージ */
+.done-msg {
+  background: linear-gradient(135deg, #e8f5ef, #d4edde);
+  border: 1.5px solid #b8deca;
+  border-radius: 16px; padding: 22px;
+  text-align: center;
+}
+.done-msg .emoji { font-size: 2rem; margin-bottom: 8px; }
+.done-msg p { font-size: .9rem; color: var(--green); font-weight: 600; line-height: 1.7; }
+
+/* divider */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+@keyframes fadeDown { from{opacity:0;transform:translateY(-14px)} to{opacity:1;transform:none} }
+@keyframes fadeUp   { from{opacity:0;transform:translateY(14px)}  to{opacity:1;transform:none} }
+@keyframes spin     { to{transform:rotate(360deg)} }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>✦ Post Helper</h1>
+  <p>@nbsw40 — 投稿の摩擦をゼロに</p>
+</header>
+
+<!-- ステッパー -->
+<div class="stepper" id="stepper">
+  <!-- JSで描画 -->
+</div>
+
+<!-- メインコンテンツ -->
+<div id="main" style="width:100%;max-width:680px;display:flex;flex-direction:column;gap:20px;"></div>
+
+<script>
+const STEPS = ['入力','ジェミス','整形','タグ','投稿'];
+let state = {
+  step: 1,
+  postType: 'normal', // 'normal' | 'note'
+  input: '',
+  gemisResponse: '',
+  patterns: [],
+  chosenPattern: '',
+  formatted: '',
+  tags: [],
+  finalText: '',
+};
+
+/* ── ステッパー描画 ── */
+function renderStepper() {
+  const el = document.getElementById('stepper');
+  el.innerHTML = STEPS.map((label, i) => {
+    const n = i + 1;
+    const cls = n < state.step ? 'done' : n === state.step ? 'active' : '';
+    const lbl = n < state.step ? 'done' : n === state.step ? 'active' : '';
+    const icon = n < state.step ? '✓' : n;
+    const line = i < STEPS.length - 1
+      ? `<div class="step-line${n < state.step ? ' done' : ''}"></div>` : '';
+    return `
+      <div class="step-item">
+        <div class="step-circle ${cls}">${icon}</div>
+        <div class="step-label ${lbl}">${label}</div>
+      </div>${line}`;
+  }).join('');
+}
+
+/* ── メイン描画 ── */
+function render() {
+  renderStepper();
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  if (state.step === 1) renderStep1(main);
+  else if (state.step === 2) renderStep2(main);
+  else if (state.step === 3) renderStep3(main);
+  else if (state.step === 4) renderStep4(main);
+  else if (state.step === 5) renderStep5(main);
+}
+
+/* ── STEP 1: 入力 ── */
+function renderStep1(el) {
+  const isNote = state.postType === 'note';
+  el.innerHTML = `
+    <div class="card">
+      <div class="section-tag">✏️ STEP 1</div>
+
+      <div style="display:flex;gap:8px;margin-bottom:20px;">
+        <button onclick="setType('normal')" style="flex:1;padding:10px;border-radius:10px;border:2px solid ${!isNote ? 'var(--accent)' : 'var(--border)'};background:${!isNote ? 'var(--accent-soft)' : 'var(--surface2)'};color:${!isNote ? 'var(--accent)' : 'var(--text-muted)'};font-family:inherit;font-size:.85rem;font-weight:${!isNote ? '700' : '400'};cursor:pointer;transition:all .2s;">
+          💬 通常投稿
+        </button>
+        <button onclick="setType('note')" style="flex:1;padding:10px;border-radius:10px;border:2px solid ${isNote ? '#2d8a5e' : 'var(--border)'};background:${isNote ? 'var(--green-soft)' : 'var(--surface2)'};color:${isNote ? 'var(--green)' : 'var(--text-muted)'};font-family:inherit;font-size:.85rem;font-weight:${isNote ? '700' : '400'};cursor:pointer;transition:all .2s;">
+          📝 note告知
+        </button>
+      </div>
+
+      <h2>${isNote ? 'note記事の情報を入れて' : '今日、何を感じた？'}</h2>
+      <p class="sub">${isNote
+        ? '記事タイトル・内容のポイント・URLなどを書いてください。<br>読みたくなるX告知文に整えます。'
+        : '箇条書きでも走り書きでもOK。<br>ちゃんと届く投稿に整えるから、まず出してみて。'
+      }</p>
+      <textarea id="s1-input" placeholder="${isNote
+        ? '例）タイトル：「ASDと診断されて気づいた3つのこと」\n内容：自己診断から確定診断までのリアルな経緯。URL：note.com/nbsw40/...'
+        : '今日感じたこと、気になったこと、何でも書いてみて'
+      }">${state.input}</textarea>
+      <button class="btn-primary" onclick="goStep2()">ジェミスに見せる →</button>
+    </div>`;
+}
+
+function setType(type) {
+  state.postType = type;
+  state.input = document.getElementById('s1-input')?.value || '';
+  renderStep1(document.getElementById('main'));
+}
+
+async function goStep2() {
+  const val = document.getElementById('s1-input').value.trim();
+  if (!val) { alert('何か書いてみてください！'); return; }
+  state.input = val;
+  state.step = 2;
+  renderStepper();
+  const main = document.getElementById('main');
+  main.innerHTML = `<div class="card"><div class="loading"><div class="spinner"></div><span>ジェミスが読んでいます…</span></div></div>`;
+
+  const isNote = state.postType === 'note';
+
+  const prompt = isNote ? `あなたは「ジェミス」というAI編集長です。
+エネルギッシュで元気いっぱい、フレンドリーな友人キャラクターとして振る舞ってください。
+
+【役割】
+noteの記事情報を受け取り、Xで読者が「読みたい！」と思うX告知ツイートの角度を提案してください。
+
+【アカウントの読者】
+・就職氷河期世代で生きづらさを抱えている人
+・ASD・発達障害の当事者・診断を疑っている大人
+・人生の転換期にいて模索している人
+
+【あなたの役割】
+1. 共感のひとこと（「これ絶対読まれる！」的なトーン）
+2. なぜクリックされるかの理由（読者のどんな感情を動かすか、1〜2文）
+3. 告知ツイートの角度　3パターン
+ - 各パターンに「A.タイトル：一言説明」の形式
+4. 背中を押す一言で締める
+
+【厳守事項】
+・「フォローしてね」「スキしてね」などの押しつけは禁止
+・記事の価値を自然に伝えること
+・友人が話しかけるような口語で書く
+
+【出力形式】（この形式を厳守してください）
+EMPATHY:（共感のひとこと）
+REASON:（なぜクリックされるか1〜2文）
+PATTERN_A_TITLE:（Aのタイトル）
+PATTERN_A_DESC:（Aの一言説明）
+PATTERN_B_TITLE:（Bのタイトル）
+PATTERN_B_DESC:（Bの一言説明）
+PATTERN_C_TITLE:（Cのタイトル）
+PATTERN_C_DESC:（Cの一言説明）
+PUSH:（背中を押す一言）
+
+note記事情報：
+${state.input}`
+
+  : `あなたは「ジェミス」というAI編集長です。
+エネルギッシュで元気いっぱい、フレンドリーな友人キャラクターとして振る舞ってください。
+
+【このアカウントの軸】
+就職氷河期 × ASD × 生きづらさを抱えながら前に進むリアル
+ノウハウではなく「共鳴」で届けるアカウントです。
+
+【届けたい読者】
+・就職氷河期世代で生きづらさを抱えている人
+・ASD・発達障害の当事者・診断を疑っている大人
+・人生の転換期にいて模索している人
+
+【あなたの役割】
+ユーザーが入力した一言を受け取り、以下を出力してください。
+1. 共感のひとこと（「わかる！それ絶対届く！」的なトーン）
+2. なぜ届くかの理由（読者のどんな感情に刺さるか、1〜2文）
+3. 投稿角度の提案（3パターン）
+ - 各パターンに「A.タイトル：一言説明」の形式
+4. 背中を押す一言で締める
+
+【厳守事項】
+・分析的・論理的なトーンは禁止
+・友人が話しかけるような口語で書く
+・ネガティブな内容でも「それが刺さる」と肯定的に捉える
+・副業・マーケティング・フォロワー獲得の文脈は一切出さない
+
+【出力形式】（この形式を厳守してください）
+EMPATHY:（共感のひとこと）
+REASON:（なぜ届くか1〜2文）
+PATTERN_A_TITLE:（Aのタイトル）
+PATTERN_A_DESC:（Aの一言説明）
+PATTERN_B_TITLE:（Bのタイトル）
+PATTERN_B_DESC:（Bの一言説明）
+PATTERN_C_TITLE:（Cのタイトル）
+PATTERN_C_DESC:（Cの一言説明）
+PUSH:（背中を押す一言）
+
+ユーザーの入力：
+${state.input}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b => b.text || '').join('') || '';
+    state.gemisResponse = text;
+
+    // パース
+    const get = (key) => {
+      const m = text.match(new RegExp(`${key}:(.+?)(?=\\n[A-Z_]+:|$)`, 's'));
+      return m ? m[1].trim() : '';
+    };
+    state.patterns = [
+      { label: 'A', title: get('PATTERN_A_TITLE'), desc: get('PATTERN_A_DESC') },
+      { label: 'B', title: get('PATTERN_B_TITLE'), desc: get('PATTERN_B_DESC') },
+      { label: 'C', title: get('PATTERN_C_TITLE'), desc: get('PATTERN_C_DESC') },
+    ];
+    state._empathy = get('EMPATHY');
+    state._reason  = get('REASON');
+    state._push    = get('PUSH');
+
+    render();
+  } catch(e) {
+    main.innerHTML = `<div class="card"><p style="color:#c0392b;font-size:.9rem;">エラーが発生しました。もう一度お試しください。</p><button class="btn-secondary" onclick="state.step=1;render()" style="margin-top:12px;">← 戻る</button></div>`;
+  }
+}
+
+/* ── STEP 2: ジェミス ── */
+function renderStep2(el) {
+  el.innerHTML = `
+    <div class="card">
+      <div class="section-tag">🔥 STEP 2</div>
+      <h2>ジェミスより</h2>
+      <div class="gemis-card">
+        <div class="gemis-avatar">J</div>
+        <div class="gemis-text"><strong>${esc(state._empathy)}</strong>
+
+📌 なぜ届くか
+${esc(state._reason)}
+
+${esc(state._push)}</div>
+      </div>
+
+      <p class="sub" style="margin-bottom:12px;">✍️ 投稿の角度　3パターン — どれで書く？</p>
+      <div class="pattern-list">
+        ${state.patterns.map(p => `
+          <button class="pattern-btn" onclick="choosePattern('${p.label}')">
+            <span class="pat-label">${p.label}パターン</span>
+            <strong>${esc(p.title)}</strong><br>
+            <span style="color:var(--text-muted);font-size:.82rem;">${esc(p.desc)}</span>
+          </button>`).join('')}
+        <button class="pattern-btn" onclick="choosePattern('FREE')" style="border-style:dashed;">
+          <span class="pat-label">自由入力</span>
+          自分で書く → 整形だけしてほしい
+        </button>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <button class="btn-secondary" onclick="state.step=1;render()">← 書き直す</button>
+        <button class="btn-secondary" onclick="goStep2()">↩ 再提案</button>
+      </div>
+    </div>`;
+}
+
+function choosePattern(label) {
+  state.chosenPattern = label;
+  state.step = 3;
+  render();
+}
+
+/* ── STEP 3: 整形 ── */
+function renderStep3(el) {
+  const pat = state.patterns.find(p => p.label === state.chosenPattern);
+  const hint = pat ? `「${pat.title}」角度で整形` : '自由入力で整形';
+  el.innerHTML = `
+    <div class="card">
+      <div class="section-tag">✂️ STEP 3</div>
+      <h2>文章を整形する</h2>
+      <p class="sub">${hint}</p>
+
+      <textarea id="s3-input" placeholder="ここに投稿したい文章を入力してください">${state.chosenPattern !== 'FREE' ? state.input : ''}</textarea>
+
+      <div class="opts-label">文字数</div>
+      <div class="chips" id="len-chips">
+        <label class="chip sel"><input type="radio" name="len" value="140" checked><span class="dot"></span>140字以内</label>
+        <label class="chip"><input type="radio" name="len" value="280"><span class="dot"></span>〜280字</label>
+        <label class="chip"><input type="radio" name="len" value="500"><span class="dot"></span>〜500字</label>
+      </div>
+
+      <div class="opts-label">雰囲気</div>
+      <div class="chips" id="mood-chips">
+        <label class="chip sel"><input type="radio" name="mood" value="つぶやき風" checked><span class="dot"></span>つぶやき風</label>
+        <label class="chip"><input type="radio" name="mood" value="日記風"><span class="dot"></span>日記風</label>
+        <label class="chip"><input type="radio" name="mood" value="語りかけ風"><span class="dot"></span>語りかけ風</label>
+        <label class="chip"><input type="radio" name="mood" value="本音風"><span class="dot"></span>本音風</label>
+      </div>
+
+      <div class="opts-label">文体</div>
+      <div class="chips" id="style-chips">
+        <label class="chip sel"><input type="radio" name="style" value="だ・である調" checked><span class="dot"></span>だ・である調</label>
+        <label class="chip"><input type="radio" name="style" value="です・ます調"><span class="dot"></span>です・ます調</label>
+      </div>
+
+      <div class="opts-label">絵文字</div>
+      <div class="chips" id="emoji-chips">
+        <label class="chip"><input type="radio" name="emoji" value="ON"><span class="dot"></span>ON</label>
+        <label class="chip sel"><input type="radio" name="emoji" value="OFF" checked><span class="dot"></span>OFF</label>
+      </div>
+
+      <button class="btn-primary" id="s3-btn" onclick="goStep4()">整形する →</button>
+      <button class="btn-secondary" style="width:100%;margin-top:8px;text-align:center;" onclick="state.step=2;render()">← 角度を選び直す</button>
+    </div>`;
+
+  // チップ挙動
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const inp = chip.querySelector('input');
+      const name = inp.name;
+      document.querySelectorAll(`.chip input[name="${name}"]`).forEach(i => {
+        i.closest('.chip').classList.remove('sel');
+        i.closest('.chip').querySelector('.dot').style.background = 'var(--border)';
+      });
+      inp.checked = true;
+      chip.classList.add('sel');
+      chip.querySelector('.dot').style.background = 'var(--accent)';
+    });
+  });
+}
+
+async function goStep4() {
+  const text = document.getElementById('s3-input').value.trim();
+  if (!text) { alert('文章を入力してください。'); return; }
+  const len   = document.querySelector('input[name="len"]:checked').value;
+  const mood  = document.querySelector('input[name="mood"]:checked').value;
+  const style = document.querySelector('input[name="style"]:checked').value;
+  const emoji = document.querySelector('input[name="emoji"]:checked').value;
+
+  document.getElementById('s3-btn').disabled = true;
+  const main = document.getElementById('main');
+  main.innerHTML = `<div class="card"><div class="loading"><div class="spinner"></div><span>整形しています…</span></div></div>`;
+
+  const pat = state.patterns.find(p => p.label === state.chosenPattern);
+  const patHint = pat ? `投稿角度：「${pat.title}」（${pat.desc}）` : '';
+
+  const prompt = `以下の文章をX（旧Twitter）の投稿に適した形に整形してください。
+
+【アカウントの軸】
+就職氷河期 × ASD × 生きづらさを抱えながら前に進むリアル
+ノウハウではなく「共鳴」で届けるアカウント。
+${patHint}
+
+【整形条件】
+・文字数：${len}字以内
+・雰囲気：${mood}
+・文体：${style}
+・絵文字：${emoji}
+・Xでの見やすさを考慮した改行を入れること
+
+【禁止事項】
+・ノウハウ・tips・マーケティング的表現
+・「〜すべき」「〜すると良い」などの上から目線
+・副業・フォロワー増加に関する言及
+
+元の言葉のリアルさ・温度感を大切に。きれいにしすぎず、人間味を残すこと。
+
+元テキスト：
+${text}
+
+整形した文章のみを出力してください（説明・ハッシュタグ不要）。`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    state.formatted = data.content?.map(b => b.text || '').join('').trim() || '';
+    state.step = 4;
+    await generateTags();
+  } catch(e) {
+    main.innerHTML = `<div class="card"><p style="color:#c0392b;">エラーが発生しました。</p><button class="btn-secondary" onclick="state.step=3;render()" style="margin-top:12px;">← 戻る</button></div>`;
+  }
+}
+
+async function generateTags() {
+  const main = document.getElementById('main');
+  main.innerHTML = `<div class="card"><div class="loading"><div class="spinner"></div><span>ハッシュタグを生成しています…</span></div></div>`;
+
+  const isNote = state.postType === 'note';
+  const prompt = isNote ? `以下のX告知ツイートに適したハッシュタグを生成してください。
+
+【このアカウントの読者】
+・就職氷河期世代（40〜50代）
+・ASD・発達障害の当事者
+・生きづらさを抱えながら生きている人
+
+【ハッシュタグ生成ルール】
+・生成数：3〜5個
+・note告知用として #note #読んでほしい などを含めてよい
+・記事内容に合うタグを優先
+・バズ狙い・マーケ系タグは禁止
+・日本語タグを優先
+
+出力形式（タグのみ、スペース区切り）：
+#タグ1 #タグ2 #タグ3 ...
+
+投稿文：
+${state.formatted}`
+
+  : `以下の投稿文に適したハッシュタグを生成してください。
+
+【このアカウントの読者】
+・就職氷河期世代（40〜50代）
+・ASD・発達障害の当事者
+・生きづらさを抱えながら生きている人
+・人生の転換期にいる人
+
+【ハッシュタグ生成ルール】
+・生成数：3〜5個
+・必ず含める候補：#就職氷河期 #ASD #生きづらさ #40代 #発達障害（全て含める必要はなく、内容に合うものを選ぶ）
+・投稿内容に応じてカスタマイズすること
+・バズ狙い・マーケ系タグは禁止
+・日本語タグを優先
+
+出力形式（タグのみ、スペース区切り）：
+#タグ1 #タグ2 #タグ3 ...
+
+投稿文：
+${state.formatted}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const tagText = data.content?.map(b => b.text || '').join('').trim() || '';
+    state.tags = tagText.match(/#\S+/g) || [];
+    render();
+  } catch(e) {
+    state.tags = ['#就職氷河期', '#生きづらさ', '#ASD'];
+    render();
+  }
+}
+
+/* ── STEP 4: タグ ── */
+function renderStep4(el) {
+  const full = state.formatted + '\n\n' + state.tags.join(' ');
+  state.finalText = full;
+  const len = full.length;
+  const cls = len <= 140 ? 'ok' : len <= 280 ? 'warn' : 'over';
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="section-tag">🏷️ STEP 4</div>
+      <h2>ハッシュタグを確認</h2>
+      <p class="sub">タグの追加・削除ができます。</p>
+
+      <div class="tag-list" id="tag-list">
+        ${state.tags.map((t,i) => `
+          <div class="tag-item">
+            ${esc(t)}
+            <span class="tag-del" onclick="removeTag(${i})">✕</span>
+          </div>`).join('')}
+      </div>
+      <div class="tag-add-row">
+        <input class="tag-input" id="tag-new" placeholder="#タグを追加" onkeydown="if(event.key==='Enter')addTag()">
+        <button class="tag-add-btn" onclick="addTag()">追加</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:.82rem;color:var(--text-muted);font-weight:500;">プレビュー</span>
+        <span class="char-badge ${cls}">${len}字</span>
+      </div>
+      <div class="result-box" id="preview-box">${formatPreview(state.formatted, state.tags)}</div>
+
+      <button class="btn-green" onclick="goStep5()">この内容でコピーして投稿 →</button>
+      <button class="btn-secondary" style="width:100%;margin-top:8px;text-align:center;" onclick="state.step=3;render()">← 整形し直す</button>
+    </div>`;
+}
+
+function removeTag(i) {
+  state.tags.splice(i, 1);
+  renderStep4(document.getElementById('main'));
+  document.getElementById('main').querySelector('.card').style.animation = 'none';
+}
+
+function addTag() {
+  const inp = document.getElementById('tag-new');
+  let val = inp.value.trim();
+  if (!val) return;
+  if (!val.startsWith('#')) val = '#' + val;
+  state.tags.push(val);
+  inp.value = '';
+  renderStep4(document.getElementById('main'));
+  document.getElementById('main').querySelector('.card').style.animation = 'none';
+}
+
+/* ── クリップボード（フォールバック付き） ── */
+function copyToClipboard(text) {
+  // まず新API試行
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text).then(() => true).catch(() => fallbackCopy(text));
+  }
+  return Promise.resolve(fallbackCopy(text));
+}
+
+function fallbackCopy(text) {
+  // execCommand方式（Chrome file://でも動く）
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    return true;
+  } catch(e) {
+    document.body.removeChild(ta);
+    return false;
+  }
+}
+
+/* ── STEP 5: 投稿 ── */
+function goStep5() {
+  state.finalText = state.formatted + '\n\n' + state.tags.join(' ');
+  copyToClipboard(state.finalText).then(() => {
+    state.step = 5;
+    render();
+  });
+}
+
+function renderStep5(el) {
+  el.innerHTML = `
+    <div class="card">
+      <div class="done-msg">
+        <div class="emoji">🎉</div>
+        <p>お疲れさま！今日も届けたね。<br>クリップボードにコピー済みです。</p>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:8px;">コピーした内容</div>
+        <div class="result-box">${formatPreview(state.formatted, state.tags)}</div>
+      </div>
+
+      <button class="btn-secondary" id="recopy-btn" style="width:100%;margin-top:4px;text-align:center;" onclick="reCopy()">📋 もう一度コピーする</button>
+      <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(state.finalText)}" target="_blank" rel="noopener">
+        <button class="btn-primary" style="background:#000;box-shadow:none;margin-top:8px;">𝕏 Xで投稿を開く</button>
+      </a>
+      <button class="btn-secondary" style="width:100%;margin-top:8px;text-align:center;" onclick="resetAll()">✦ 新しい投稿を書く</button>
+    </div>`;
+}
+
+function reCopy() {
+  copyToClipboard(state.finalText).then(ok => {
+    const btn = document.getElementById('recopy-btn');
+    if (btn) { btn.textContent = ok ? '✓ コピーしました' : '⚠ 手動でコピーしてください'; setTimeout(() => { if(btn) btn.textContent = '📋 もう一度コピーする'; }, 2000); }
+  });
+}
+
+function resetAll() {
+  state = { step:1, postType:'normal', input:'', gemisResponse:'', patterns:[], chosenPattern:'', formatted:'', tags:[], finalText:'' };
+  render();
+}
+
+/* ── ユーティリティ ── */
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function formatPreview(text, tags) {
+  const t = esc(text);
+  const tagStr = tags.map(t => `<span class="tag">${esc(t)}</span>`).join(' ');
+  return t + (tags.length ? '<br><br>' + tagStr : '');
+}
+
+render();
+</script>
+</body>
+</html>
